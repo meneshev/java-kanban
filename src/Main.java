@@ -84,5 +84,4 @@ public class Main {
         taskManager.clearTasks();
         taskManager.printAllTasks();
     }
-    
 }
