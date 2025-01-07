@@ -3,11 +3,7 @@ import java.util.Map;
 
 public class TaskManager {
     private static Integer counter = 0;
-    private final Map<Integer, Task> taskMap;
-
-    public TaskManager() {
-        this.taskMap = new HashMap<>();
-    }
+    private final Map<Integer, Task> taskMap = new HashMap<>();
 
     public Map<Integer, Task> getAllTasks() {
         return taskMap;
