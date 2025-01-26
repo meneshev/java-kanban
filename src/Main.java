@@ -1,14 +1,11 @@
-import java.util.HashMap;
-import java.util.Map;
-
 public class Main {
 
-    public static void main(String[] args) {
-        testTaskManager();
+    public static void main(String[] args) throws CloneNotSupportedException {
+        testTaskManagerHistory();
     }
 
-    private static void testTaskManager() {
-        TaskManager taskManager = new TaskManager();
+    private static void testTaskManagerHistory() throws CloneNotSupportedException {
+        TaskManager taskManager = Managers.getDefault();
 
         taskManager.addTask(new Task("Подготовиться к презентации",
                 "Очень важно начать подготовку вовремя"));
@@ -17,71 +14,55 @@ public class Main {
 
         taskManager.addTask(new Epic("Освоить английский на уровне B1",
                 "Эпик нужно завершить за 6 месяцев"));
-        int idEpic1 = TaskManager.getLastTaskId();
+        int idEpic1 = InMemoryTaskManager.getLastTaskId();
         taskManager.addTask(new Subtask("Освоить грамматику", "Нужна ежедневная практика", idEpic1));
         taskManager.addTask(new Subtask("Улучшить говорение", "Занятия с носителем языка", idEpic1));
 
         taskManager.addTask(new Epic("Сбросить вес к лету", "Выбрать подходящий зал"));
-        int idEpic2 = TaskManager.getLastTaskId();
+        int idEpic2 = InMemoryTaskManager.getLastTaskId();
         taskManager.addTask(new Subtask("Заниматься с тренером", "Ознакомиться с отзывами",
                 idEpic2));
 
-        System.out.println("\nТестирование трекера задач");
-        System.out.println("1. Создайте две задачи, а также эпик с двумя подзадачами и эпик с одной подзадачей.");
-        System.out.println("2. Распечатайте списки эпиков, задач и подзадач через System.out.println(..)");
+        System.out.println("\nТестирование истории просмотра трекера задач:");
+        System.out.println("\n1. В историю записываются только просмотры задач, полученных через методы get..ById()");
+        System.out.println("Получение списка всех задач printAllTasks() - нет вызова get..ById()");
         taskManager.printAllTasks();
+        System.out.println("Отображение истории просмотров: ");
+        taskManager.getHistory().forEach(System.out::println);
+        System.out.println("\nВызов метода getTaskById(1)");
+        System.out.println(taskManager.getTaskById(1));
+        System.out.println("Вызов метода getTaskById(2)");
+        System.out.println(taskManager.getTaskById(2));
+        System.out.println("Вызов метода getTaskById(4)");
+        System.out.println(taskManager.getTaskById(4));
+        System.out.println("Вызов метода getTaskById(7)");
+        System.out.println(taskManager.getTaskById(7));
+        System.out.println("Вызов метода getTaskById(2)");
+        System.out.println(taskManager.getTaskById(2));
+        System.out.println("\nОтображение истории просмотров: ");
+        taskManager.getHistory().forEach(System.out::println);
 
-        System.out.println("\n3. Измените статусы созданных объектов, распечатайте их. Проверьте, " +
-                "что статус задачи и подзадачи сохранился, а статус эпика рассчитался по статусам подзадач.");
-        Task task1 = taskManager.getTaskById(1);
-        task1.setStatus(TaskStatus.DONE);
-        taskManager.updateTask(task1);
+        System.out.println("\n2. В историю просмотра записывается состояние задачи на момент просмотра");
+        System.out.println("Изменение подзадачи с id = 4");
+        Subtask changedSubtask = (Subtask) taskManager.getTaskById(4);
+        changedSubtask.setDescription("New description");
+        changedSubtask.setName("New name");
+        changedSubtask.setStatus(TaskStatus.DONE);
+        System.out.println("Вызов метода getTaskById(4)");
+        System.out.println(taskManager.getTaskById(4));
+        System.out.println("\nОтображение истории просмотров: ");
+        taskManager.getHistory().forEach(System.out::println);
 
-        Task task2 = taskManager.getTaskById(2);
-        task2.setStatus(TaskStatus.IN_PROGRESS);
-        taskManager.updateTask(task2);
-
-        Epic epic1 = (Epic) taskManager.getTaskById(3);
-        epic1.setStatus(TaskStatus.DONE);
-        taskManager.updateTask(epic1);
-
-        Subtask subtask1 = (Subtask) taskManager.getTaskById(4);
-        subtask1.setStatus(TaskStatus.DONE);
-        taskManager.updateTask(subtask1);
-
-        Subtask subtask2 = (Subtask) taskManager.getTaskById(5);
-        subtask2.setStatus(TaskStatus.DONE);
-        taskManager.updateTask(subtask2);
-
-        Subtask subtask3 = (Subtask) taskManager.getTaskById(7);
-        subtask3.setStatus(TaskStatus.IN_PROGRESS);
-        taskManager.updateTask(subtask3);
-        taskManager.printAllTasks();
-
-        System.out.println("\n4. И, наконец, попробуйте удалить одну из задач и один из эпиков");
-        taskManager.deleteTaskById(3);
-        taskManager.deleteTaskById(1);
-        taskManager.deleteTaskById(7);
-        taskManager.deleteTaskById(6);
-        taskManager.deleteTaskById(Integer.MAX_VALUE);
-        taskManager.printAllTasks();
-
-        System.out.println("\nДополнительная проверка методов TrackerManager:");
-        System.out.println("5. Получение списка всех задач");
-        Map<Integer, Task> tasks = new HashMap<>();
-        System.out.println(tasks);
-        tasks = taskManager.getAllTasks();
-        System.out.println(tasks);
-
-        System.out.println("\n6. Получение списка всех подзадач определённого эпика");
-        Map<Integer, Task> subtasks = new HashMap<>();
-        System.out.println(subtasks);
-        subtasks = taskManager.getSubtasks(3);
-        System.out.println(subtasks);
-
-        System.out.println("\n7. Удаление всех задач");
-        taskManager.printAllTasks();
-        taskManager.clearTasks();
-        taskManager.printAllTasks();
+        System.out.println("\n3. В истории просмотра хранится только 10 последних просмотренных задач");
+        System.out.println("\nВызов метода getTaskById(1)");
+        System.out.println(taskManager.getTaskById(1));
+        System.out.println("Вызов метода getTaskById(2)");
+        System.out.println(taskManager.getTaskById(2));
+        System.out.println("Вызов метода getTaskById(4)");
+        System.out.println(taskManager.getTaskById(4));
+        System.out.println("Вызов метода getTaskById(7)");
+        System.out.println(taskManager.getTaskById(7));
+        System.out.println("\nОтображение истории просмотров: ");
+        taskManager.getHistory().forEach(System.out::println);
     }
 }
