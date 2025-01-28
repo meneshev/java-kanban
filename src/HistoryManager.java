@@ -1,9 +1,9 @@
-import java.util.ArrayList;
+import java.util.List;
 
 public interface HistoryManager {
     void add(Task task) throws CloneNotSupportedException;
 
-    ArrayList<Task> getHistory();
+    List<Task> getHistory();
 
     void clearHistory();
 }

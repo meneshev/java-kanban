@@ -3,6 +3,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
+import java.util.List;
 
 class InMemoryTaskManagerTest {
     private static InMemoryTaskManager taskManager;
@@ -121,7 +122,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     public void inMemoryTaskManagerCanGetAllTasks() {
-        ArrayList<Task> allTasks = new ArrayList<>();
+        List<Task> allTasks = new ArrayList<>();
         Task task = new Task("Some name", "Some description");
         taskManager.addTask(task);
         allTasks.add(task);
@@ -131,13 +132,13 @@ class InMemoryTaskManagerTest {
         Subtask subtask = new Subtask("Some name", "Some description", epic.getId());
         taskManager.addTask(subtask);
         allTasks.add(subtask);
-        ArrayList<Task> allTasksFromManager = new ArrayList<>(taskManager.getAllTasks().values());
+        List<Task> allTasksFromManager = new ArrayList<>(taskManager.getAllTasks().values());
         assertArrayEquals(allTasks.toArray(), allTasksFromManager.toArray());
     }
 
     @Test
     public void inMemoryTaskManagerCanGetAllEpicSubtasks() {
-        ArrayList<Task> allSubtasks = new ArrayList<>();
+        List<Task> allSubtasks = new ArrayList<>();
         Epic epic = new Epic("Some name", "Some description");
         taskManager.addTask(epic);
         Subtask subtask1 = new Subtask("Some name", "Some description", epic.getId());

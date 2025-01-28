@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public interface TaskManager {
@@ -20,5 +20,5 @@ public interface TaskManager {
 
     void printAllTasks();
 
-    ArrayList<? extends Task> getHistory();
+    List<? extends Task> getHistory();
 }

@@ -1,8 +1,9 @@
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final ArrayList<Task> viewedTasks = new ArrayList<>(10);
+    private final List<Task> viewedTasks = new ArrayList<>(10);
 
     @Override
     public void add(Task task) throws CloneNotSupportedException {
@@ -16,7 +17,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public ArrayList<Task> getHistory() {
+    public List<Task> getHistory() {
         return viewedTasks;
     }
 

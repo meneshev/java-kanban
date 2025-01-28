@@ -3,6 +3,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 class InMemoryHistoryManagerTest {
@@ -48,13 +49,13 @@ class InMemoryHistoryManagerTest {
         taskManager.addTask(subtask2);
         taskManager.addTask(subtask3);
 
-        ArrayList<Task> firstSevenViews = new ArrayList<>();
+        List<Task> firstSevenViews = new ArrayList<>();
         for (Task task : taskManager.getAllTasks().values()) {
             firstSevenViews.add(taskManager.getTaskById(task.getId()));
         }
         assertArrayEquals(taskManager.getHistory().toArray(), firstSevenViews.toArray());
 
-        ArrayList<Task> lastTenViews = new ArrayList<>();
+        List<Task> lastTenViews = new ArrayList<>();
         Random random = new Random();
         for (int i = 0; i < 10; i++) {
             Integer randomId = random.nextInt(InMemoryTaskManager.getLastTaskId()) + 1;
