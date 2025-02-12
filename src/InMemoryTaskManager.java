@@ -114,6 +114,7 @@ public class InMemoryTaskManager implements TaskManager {
                 return;
             }
         }
+        historyManager.remove(id);
         taskMap.remove(id);
         System.out.println("INFO: Задача с идентификатором " + id + " была удалена");
     }
@@ -198,5 +199,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void addToViewed(Task task) throws CloneNotSupportedException {
         historyManager.add(task);
+    }
+
+    // для тестов
+    public HistoryManager getHistoryManager() {
+        return historyManager;
     }
 }
