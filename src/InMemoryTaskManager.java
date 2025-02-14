@@ -3,7 +3,7 @@ import java.util.*;
 public class InMemoryTaskManager implements TaskManager {
     private static Integer counter = 0;
     private final Map<Integer, Task> taskMap = new HashMap<>();
-    private final HistoryManager historyManager = Managers.getDefaultHistory();
+    public final HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
     public Map<Integer, Task> getAllTasks() {
@@ -199,10 +199,5 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void addToViewed(Task task) throws CloneNotSupportedException {
         historyManager.add(task);
-    }
-
-    // для тестов
-    public HistoryManager getHistoryManager() {
-        return historyManager;
     }
 }

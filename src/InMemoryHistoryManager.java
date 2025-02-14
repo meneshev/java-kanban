@@ -3,7 +3,7 @@ import java.util.*;
 public class InMemoryHistoryManager implements HistoryManager {
     private Node<Task> firstElement;
     private Node<Task> lastElement;
-    private final HashMap<Integer, Node<Task>> historyMap = new HashMap<>();
+    public final HashMap<Integer, Node<Task>> historyMap = new HashMap<>();
 
     public void add(Task task) throws CloneNotSupportedException {
         if (Objects.isNull(task)) {
@@ -52,8 +52,8 @@ public class InMemoryHistoryManager implements HistoryManager {
         el.data = null;
     }
 
-    private ArrayList<Task> getTasks() {
-        ArrayList<Task> tasks = new ArrayList<>();
+    private List<Task> getTasks() {
+        List<Task> tasks = new ArrayList<>();
         Node<Task> current = firstElement;
         while (current != null) {
             tasks.add(current.data);
@@ -102,11 +102,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
         removeNode(historyMap.get(id));
         historyMap.remove(id);
-    }
-
-    // для тестов
-    public HashMap<Integer, Node<Task>> getHistoryMap() {
-        return historyMap;
     }
 }
 

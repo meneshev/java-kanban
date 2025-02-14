@@ -36,39 +36,39 @@ class InMemoryHistoryManagerTest {
         for (Task task : taskManager.getAllTasks().values()) {
             taskManager.getTaskById(task.getId());
         }
-        InMemoryHistoryManager hm = (InMemoryHistoryManager) taskManager.getHistoryManager();
-        int historySize = hm.getHistoryMap().size();
+        InMemoryHistoryManager hm = (InMemoryHistoryManager) taskManager.historyManager;
+        int historySize = hm.historyMap.size();
 
         // удалим 1-ый элемент, ожидаем что у 2-го элемента prev станет null
-        Node<Task> nextDeleted = hm.getHistoryMap().get(2);
-        Node<Task> deleted = hm.getHistoryMap().get(1);
+        Node<Task> nextDeleted = hm.historyMap.get(2);
+        Node<Task> deleted = hm.historyMap.get(1);
         assertEquals(nextDeleted.previous, deleted);
         hm.remove(1);
         assertNull(nextDeleted.previous);
-        assertEquals(historySize - 1, hm.getHistoryMap().size());
-        historySize = hm.getHistoryMap().size();
+        assertEquals(historySize - 1, hm.historyMap.size());
+        historySize = hm.historyMap.size();
 
 
         // удалим элемент из середины (10-ый), ожидаем что у предыдущего элемента next станет next удаляемого,
         // у след. элемента prev станет prev удаляемого
-        Node<Task> beforeDeleted = hm.getHistoryMap().get(9);
-        deleted = hm.getHistoryMap().get(10);
-        nextDeleted = hm.getHistoryMap().get(11);
+        Node<Task> beforeDeleted = hm.historyMap.get(9);
+        deleted = hm.historyMap.get(10);
+        nextDeleted = hm.historyMap.get(11);
         assertEquals(nextDeleted.previous, deleted);
         assertEquals(beforeDeleted.next, deleted);
         hm.remove(10);
         assertEquals(nextDeleted.previous, beforeDeleted);
         assertEquals(beforeDeleted.next, nextDeleted);
-        assertEquals(historySize - 1, hm.getHistoryMap().size());
-        historySize = hm.getHistoryMap().size();
+        assertEquals(historySize - 1, hm.historyMap.size());
+        historySize = hm.historyMap.size();
 
         // удалим последний элемент, ожидаем что у предпоследнего элемента next станет null
-        beforeDeleted = hm.getHistoryMap().get(16);
-        deleted = hm.getHistoryMap().get(17);
+        beforeDeleted = hm.historyMap.get(16);
+        deleted = hm.historyMap.get(17);
         assertEquals(beforeDeleted.next, deleted);
         hm.remove(17);
         assertNull(beforeDeleted.next);
-        assertEquals(historySize - 1, hm.getHistoryMap().size());
+        assertEquals(historySize - 1, hm.historyMap.size());
     }
 
     @Test
@@ -89,8 +89,8 @@ class InMemoryHistoryManagerTest {
         for (Task task : taskManager.getAllTasks().values()) {
             taskManager.getTaskById(task.getId());
         }
-        InMemoryHistoryManager hm = (InMemoryHistoryManager) taskManager.getHistoryManager();
-        int historySize = hm.getHistoryMap().size();
+        InMemoryHistoryManager hm = (InMemoryHistoryManager) taskManager.historyManager;
+        int historySize = hm.historyMap.size();
         assertEquals(4, historySize);
 
         hm.remove(epic1.getId());
@@ -108,7 +108,7 @@ class InMemoryHistoryManagerTest {
             }
         }
         assertArrayEquals(taskManager.getAllTasks().values().toArray(),
-                taskManager.getHistoryManager().getHistory().toArray());
+                taskManager.historyManager.getHistory().toArray());
     }
 
     @Test
