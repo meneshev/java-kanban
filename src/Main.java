@@ -53,7 +53,7 @@ public class Main {
         System.out.println("\nОтображение истории просмотров: ");
         taskManager.getHistory().forEach(System.out::println);
 
-        System.out.println("\n3. В истории просмотра хранится только 10 последних просмотренных задач");
+        System.out.println("\n3. В истории просмотра хранятся только уникальные задачи");
         System.out.println("\nВызов метода getTaskById(1)");
         System.out.println(taskManager.getTaskById(1));
         System.out.println("Вызов метода getTaskById(2)");
@@ -62,6 +62,10 @@ public class Main {
         System.out.println(taskManager.getTaskById(4));
         System.out.println("Вызов метода getTaskById(7)");
         System.out.println(taskManager.getTaskById(7));
+        System.out.println("Вызов метода getTaskById(1)");
+        System.out.println(taskManager.getTaskById(1));
+        System.out.println("Вызов метода getTaskById(4)");
+        System.out.println(taskManager.getTaskById(4));
         System.out.println("\nОтображение истории просмотров: ");
         taskManager.getHistory().forEach(System.out::println);
     }
