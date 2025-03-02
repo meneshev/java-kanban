@@ -32,7 +32,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         super(taskMap);
     }
 
-    public String getCsvHeader() { return csvHeader; }
+    public String getCsvHeader() {
+        return csvHeader;
+    }
 
     public static Path getSourcePath() {
         return sourcePath;
