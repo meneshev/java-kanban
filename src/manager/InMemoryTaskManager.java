@@ -1,9 +1,19 @@
+package manager;
+
+import task.*;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
-    private static Integer counter = 0;
-    private final Map<Integer, Task> taskMap = new HashMap<>();
-    private final HistoryManager historyManager = Managers.getDefaultHistory();
+    protected static Integer counter = 0;
+    protected Map<Integer, Task> taskMap = new HashMap<>();
+    protected final HistoryManager historyManager = Managers.getDefaultHistory();
+
+    public InMemoryTaskManager() {
+    }
+
+    public InMemoryTaskManager(Map<Integer, Task> taskMap) {
+        this.taskMap = taskMap;
+    }
 
     @Override
     public Map<Integer, Task> getAllTasks() {
@@ -23,7 +33,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //в историю просмотра записываются только вызовы извне по идентификатору
     @Override
-    public Task getTaskById(Integer id) throws CloneNotSupportedException {
+    public Task getTaskById(Integer id) {
         if (taskMap.containsKey(id)) {
             addToViewed(taskMap.get(id));
         }
@@ -31,7 +41,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     //метод для внутреннего использования, в нем не обновляется информация о просмотре задач
-    private Task getTaskById(Integer id, Boolean innerUse) {
+    protected Task getTaskById(Integer id, Boolean innerUse) {
         if (innerUse) {
             return taskMap.get(id);
         } else {
@@ -50,15 +60,14 @@ public class InMemoryTaskManager implements TaskManager {
                 int id = getNewTaskId();
                 task.setId(id);
                 taskMap.put(id, task);
-                System.out.println("INFO: Добавлена новая задача с идентификатором " + id);
+                System.out.println("\nINFO: Добавлена новая задача с идентификатором " + id);
             }
         } else {
             System.out.println("WARN: Задача не прошла валидацию и не была добавлена");
         }
-
     }
 
-    private Boolean validateTask(Task task) {
+    protected Boolean validateTask(Task task) {
         if (task.getClass() == Subtask.class) {
             Subtask subtask = (Subtask) task;
             Map<Integer, Task> epicsList = getTasksByType(Epic.class);
@@ -70,7 +79,7 @@ public class InMemoryTaskManager implements TaskManager {
         return true;
     }
 
-    private void updateTask(Task task, Boolean isValid) {
+    protected void updateTask(Task task, Boolean isValid) {
         if (isValid) {
             taskMap.put(task.getId(), task);
 
@@ -196,7 +205,7 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    private void addToViewed(Task task) throws CloneNotSupportedException {
+    protected void addToViewed(Task task) {
         historyManager.add(task);
     }
 }

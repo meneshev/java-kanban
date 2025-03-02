@@ -1,7 +1,13 @@
+package manager;
+
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import task.Epic;
+import task.Subtask;
+import task.Task;
+import task.TaskStatus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -21,7 +27,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void viewAddToHistory() throws CloneNotSupportedException {
+    public void viewAddToHistory() {
         Task task = new Task("Task name", "Task description");
         taskManager.addTask(task);
         taskManager.getTaskById(InMemoryTaskManager.getLastTaskId());
@@ -29,7 +35,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void historyContains10LastViews() throws CloneNotSupportedException {
+    public void historyContains10LastViews() {
         Task task1 = new Task("Task1 name", "Task1 description");
         taskManager.addTask(task1);
         Task task2 = new Task("Task2 name", "Task2 description");
@@ -65,7 +71,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void tasksInTaskManagerAreSnapshots() throws CloneNotSupportedException {
+    public void tasksInTaskManagerAreSnapshots() {
         Task task = new Task("Task name", "Task description");
         taskManager.addTask(task);
         taskManager.getTaskById(InMemoryTaskManager.getLastTaskId());

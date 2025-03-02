@@ -1,7 +1,13 @@
+package manager;
+
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import task.Epic;
+import task.Subtask;
+import task.Task;
+import task.TaskStatus;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +31,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void taskDeletedSuccessfully() throws CloneNotSupportedException {
+    public void taskDeletedSuccessfully() {
         Task task1 = new Task("Some name", "Some description");
         taskManager.addTask(task1);
         assertTrue(taskManager.getAllTasks().containsValue(task1));
@@ -34,7 +40,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void taskStatusSuccessfullyChanged() throws CloneNotSupportedException {
+    public void taskStatusSuccessfullyChanged() {
         Task task1 = new Task("Some name", "Some description");
         taskManager.addTask(task1);
         task1.setStatus(TaskStatus.DONE);
@@ -50,7 +56,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void epicDeletedSuccessfully() throws CloneNotSupportedException {
+    public void epicDeletedSuccessfully() {
         Epic epic1 = new Epic("Some name", "Some description");
         taskManager.addTask(epic1);
         assertTrue(taskManager.getAllTasks().containsValue(epic1));
@@ -59,7 +65,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void epicStatusSuccessfullyChanged() throws CloneNotSupportedException {
+    public void epicStatusSuccessfullyChanged() {
         Epic epic1 = new Epic("Some name", "Some description");
         taskManager.addTask(epic1);
         assertEquals(TaskStatus.NEW, taskManager.getTaskById(epic1.getId()).getStatus());
@@ -88,7 +94,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void subtaskDeletedSuccessfully() throws CloneNotSupportedException {
+    public void subtaskDeletedSuccessfully() {
         Epic epic1 = new Epic("Some name", "Some description");
         taskManager.addTask(epic1);
         Subtask subtask1 = new Subtask("Some name", "Some description", epic1.getId());
@@ -99,7 +105,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void subtaskStatusSuccessfullyChanged() throws CloneNotSupportedException {
+    public void subtaskStatusSuccessfullyChanged() {
         Epic epic1 = new Epic("Some name", "Some description");
         taskManager.addTask(epic1);
         Subtask subtask1 = new Subtask("Some name", "Some description", epic1.getId());
@@ -168,21 +174,21 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void inMemoryTaskManagerCanAddAndFindTasks() throws CloneNotSupportedException {
+    public void inMemoryTaskManagerCanAddAndFindTasks() {
         Task task = new Task("Some name", "Some description");
         taskManager.addTask(task);
         assertNotNull(taskManager.getTaskById(InMemoryTaskManager.getLastTaskId()));
     }
 
     @Test
-    public void inMemoryTaskManagerCanAddAndFindEpics() throws CloneNotSupportedException {
+    public void inMemoryTaskManagerCanAddAndFindEpics() {
         Epic epic = new Epic("Some name", "Some description");
         taskManager.addTask(epic);
         assertNotNull(taskManager.getTaskById(InMemoryTaskManager.getLastTaskId()));
     }
 
     @Test
-    public void inMemoryTaskManagerCanAddAndFindSubtasks() throws CloneNotSupportedException {
+    public void inMemoryTaskManagerCanAddAndFindSubtasks() {
         Epic epic = new Epic("Some name", "Some description");
         taskManager.addTask(epic);
         Subtask subtask = new Subtask("Some name", "Some description", epic.getId());
@@ -191,7 +197,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void tasksWithGeneratedAndManualIdAreNotConflicted() throws CloneNotSupportedException {
+    public void tasksWithGeneratedAndManualIdAreNotConflicted() {
         Task taskWithGeneratedId = new Task("Some name", "Some description");
         taskManager.addTask(taskWithGeneratedId);
         Task taskWithManualId = new Task("Some new name", "Some new description");
@@ -203,7 +209,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void tasksAreNotChangeAfterAddToTaskManager() throws CloneNotSupportedException {
+    public void tasksAreNotChangeAfterAddToTaskManager() {
         Task task = new Task("Some task name", "Some task description");
         String taskNameAfterCreate = task.getName();
         String taskDescriptionAfterCreate = task.getDescription();

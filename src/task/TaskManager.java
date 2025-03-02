@@ -1,3 +1,5 @@
+package task;
+
 import java.util.List;
 import java.util.Map;
 
@@ -6,11 +8,11 @@ public interface TaskManager {
 
     void clearTasks();
 
-    Task getTaskById(Integer id) throws CloneNotSupportedException;
+    Task getTaskById(Integer id);
 
     void addTask(Task task);
 
-    void updateTask(Task task) throws CloneNotSupportedException;
+    void updateTask(Task task);
 
     void deleteTaskById(Integer id);
 
