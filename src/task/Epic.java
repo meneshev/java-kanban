@@ -12,7 +12,7 @@ public class Epic extends Task {
 
     @Override
     public void setStatus(TaskStatus status) {
-        System.out.println("WARN: Для эпиков запрещена ручная смена статуса");;
+        System.out.println("WARN: Для эпиков запрещена ручная смена статуса");
     }
 
     public void setStatus(TaskStatus status, boolean force) {

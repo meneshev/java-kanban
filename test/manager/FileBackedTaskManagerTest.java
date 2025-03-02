@@ -34,7 +34,7 @@ class FileBackedTaskManagerTest {
     }
 
     @Test
-    void loadFromFile() throws IOException {
+    void loadFromFile() {
         final Path file = Path.of("test/resources/fileForLoad.txt");
         manager = FileBackedTaskManager.loadFromFile(file);
 
