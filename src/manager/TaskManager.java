@@ -20,6 +20,8 @@ public interface TaskManager {
 
     Map<Integer, Task> getTasksByType(Class<?> cl);
 
+    void deleteTasksByType(Class<?> cl);
+
     List<Task> getSubtasks(int epicId);
 
     void printAllTasks();

@@ -1,3 +1,5 @@
+package manager;
+
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,7 +10,6 @@ import task.Task;
 import task.TaskStatus;
 import java.util.ArrayList;
 import java.util.List;
-
 
 class InMemoryHistoryManagerTest {
     private static InMemoryTaskManager taskManager;
@@ -41,7 +42,7 @@ class InMemoryHistoryManagerTest {
             taskManager.getTaskById(task.getId());
         }
         InMemoryHistoryManager hm = (InMemoryHistoryManager) taskManager.historyManager;
-        int historySize = hm.historyMap.size();
+        int historySize = hm.getHistory().size();
 
         // удалим 1-ый элемент, ожидаем что у 2-го элемента prev станет null
         Node<Task> nextDeleted = hm.historyMap.get(2);

@@ -166,6 +166,19 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public void deleteTasksByType(Class<?> cl) {
+        List<Task> tasksToDelete = new ArrayList<>();
+        for (Task task : taskMap.values()) {
+            if (task.getClass() == cl) {
+                tasksToDelete.add(task);
+            }
+        }
+        for (Task t : tasksToDelete) {
+            deleteTaskById(t.getId());
+        }
+    }
+
+    @Override
     public List<Task> getSubtasks(int epicId) {
         List<Task> subtasks = new ArrayList<>();
         for (Task t : getTasksByType(Subtask.class).values()) {
@@ -175,6 +188,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         return subtasks;
     }
+
 
     public static Integer getNewTaskId() {
         return ++counter;
