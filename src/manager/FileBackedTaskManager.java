@@ -12,12 +12,12 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-    private static final Path defaultPath = Paths.get("resources/tasks.txt");
+    private static final Path DEFAULT_PATH = Paths.get("resources/tasks.txt");
     private static Path sourcePath;
     private static final String csvHeader = "id,type,name,status,description,epicId";
 
     public FileBackedTaskManager() {
-        sourcePath = defaultPath;
+        sourcePath = DEFAULT_PATH;
         System.out.printf("INFO: Создан объект FileBackedTaskManager с настройкой по умолчанию. Задачи хранятся %s\n",
                 sourcePath.toAbsolutePath());
     }
@@ -58,8 +58,16 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
             while (reader.ready()) {
                 String[] taskFromRow = reader.readLine().split(",");
-                switch (taskFromRow[fields.get("type")]) {
-                    case "TASK":
+                TaskType taskType;
+                try {
+                     taskType = TaskType.valueOf(taskFromRow[fields.get("type")]);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("ERROR: Ошибка при загрузке из файла: неизвестный тип задачи");
+                    return new FileBackedTaskManager();
+                }
+
+                switch (taskType) {
+                    case TASK:
                         tmpTaskMap.put(Integer.parseInt(taskFromRow[fields.get("id")]),
                                 new Task(
                                         taskFromRow[fields.get("name")],
@@ -69,7 +77,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                                     )
                                 );
                         break;
-                    case "EPIC":
+                    case EPIC:
                         tmpTaskMap.put(Integer.parseInt(taskFromRow[fields.get("id")]),
                                 new Epic(
                                         taskFromRow[fields.get("name")],
@@ -79,7 +87,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                                     )
                                 );
                         break;
-                    case "SUBTASK":
+                    case SUBTASK:
                         tmpTaskMap.put(Integer.parseInt(taskFromRow[fields.get("id")]),
                                 new Subtask(
                                         taskFromRow[fields.get("name")],
@@ -90,9 +98,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                                     )
                                 );
                         break;
-                    default:
-                        System.out.println("ERROR: Ошибка при загрузке из файла: неизвестный тип задачи");
-                        return new FileBackedTaskManager();
                 }
             }
 

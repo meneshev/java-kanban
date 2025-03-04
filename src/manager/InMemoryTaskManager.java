@@ -60,6 +60,7 @@ public class InMemoryTaskManager implements TaskManager {
                 int id = getNewTaskId();
                 task.setId(id);
                 taskMap.put(id, task);
+                calculateEpicStatus(task);
                 System.out.println("\nINFO: Добавлена новая задача с идентификатором " + id);
             }
         } else {
@@ -82,12 +83,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected void updateTask(Task task, Boolean isValid) {
         if (isValid) {
             taskMap.put(task.getId(), task);
-
-            if (task.getClass() == Subtask.class) {
-                int epicId = ((Subtask) task).getEpicId();
-                Epic epic = (Epic) getTaskById(epicId, true);
-                calculateEpicStatus(epic);
-            }
+            calculateEpicStatus(task);
             System.out.println("INFO: Обновлена задача с идентификатором " + task.getId());
         }
     }
@@ -96,12 +92,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateTask(Task task) {
         if (validateTask(task)) {
             taskMap.put(task.getId(), task);
-
-            if (task.getClass() == Subtask.class) {
-                int epicId = ((Subtask) task).getEpicId();
-                Epic epic = (Epic) getTaskById(epicId, true);
-                calculateEpicStatus(epic);
-            }
+            calculateEpicStatus(task);
             System.out.println("INFO: Обновлена задача с идентификатором " + task.getId());
         } else {
             System.out.println("WARN: Задача не прошла валидацию и не была добавлена");
@@ -116,40 +107,51 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         if (task.getClass() == Epic.class) {
-            Map<Integer, Task> subtasks = getSubtasks(id);
-            if (!subtasks.isEmpty()) {
-                System.out.println("WARN: Невозможно удалить эпик с идентификатором " + id
-                        + ". На эпик ссылаются подзадачи");
-                return;
+            List<Task> subtasks = getSubtasks(id);
+            System.out.println("INFO: Удаление подзадач эпика с идентификатором" + id);
+            for (Task subtask : subtasks) {
+                taskMap.remove(subtask.getId());
             }
+            taskMap.remove(id);
+        } else {
+            taskMap.remove(id);
+            calculateEpicStatus(task);
         }
-        taskMap.remove(id);
         System.out.println("INFO: Задача с идентификатором " + id + " была удалена");
     }
 
     public void calculateEpicStatus(Task task) {
-        Map<Integer, Task> subtasks = getSubtasks(task.getId());
-        if (subtasks.isEmpty()) {
-            ((Epic) task).setStatus(TaskStatus.NEW, true);
-            System.out.println("INFO: Статус эпика с идентификатором " + task.getId() + " изменен на NEW");
+        if (task.getClass() != Subtask.class) {
             return;
         }
 
+        Epic epic = (Epic) taskMap.get(((Subtask) task).getEpicId());
+        List<Task> subtasks = getSubtasks(epic.getId());
+
         boolean allSubtasksIsDone = true;
-        for (Task t : subtasks.values()) {
+        boolean allSubtasksIsNew = true;
+        for (Task t : subtasks) {
             if (t.getStatus() != TaskStatus.DONE) {
                 allSubtasksIsDone = false;
+            } else if (t.getStatus() != TaskStatus.NEW) {
+                allSubtasksIsNew = false;
+            }
+
+            if (!allSubtasksIsDone && !allSubtasksIsNew) {
                 break;
             }
         }
-        if (allSubtasksIsDone) {
-            ((Epic) task).setStatus(TaskStatus.DONE, true);
-            System.out.println("INFO: Статус эпика с идентификатором " + task.getId() + " изменен на DONE");
-            return;
-        }
 
-        ((Epic) task).setStatus(TaskStatus.IN_PROGRESS, true);
-        System.out.println("INFO: Статус эпика с идентификатором " + task.getId() + " изменен на IN_PROGRESS");
+        if (subtasks.isEmpty() || allSubtasksIsNew) {
+            epic.setStatus(TaskStatus.NEW, true);
+            System.out.println("INFO: Статус эпика с идентификатором " + epic.getId() + " изменен на NEW");
+        } else if (allSubtasksIsDone) {
+            epic.setStatus(TaskStatus.DONE, true);
+            System.out.println("INFO: Статус эпика с идентификатором " + epic.getId() + " изменен на DONE");
+        } else {
+            epic.setStatus(TaskStatus.IN_PROGRESS, true);
+            System.out.println("INFO: Статус эпика с идентификатором " + epic.getId() + " изменен на IN_PROGRESS");
+        }
     }
 
     @Override
@@ -164,11 +166,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Map<Integer, Task> getSubtasks(int epicId) {
-        Map<Integer, Task> subtasks = new HashMap<>();
+    public List<Task> getSubtasks(int epicId) {
+        List<Task> subtasks = new ArrayList<>();
         for (Task t : getTasksByType(Subtask.class).values()) {
             if (((Subtask) t).getEpicId() == epicId) {
-                subtasks.put(t.getId(), t);
+                subtasks.add(t);
             }
         }
         return subtasks;

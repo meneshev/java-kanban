@@ -156,7 +156,7 @@ class InMemoryTaskManagerTest {
         allSubtasks.add(subtask1);
         allSubtasks.add(subtask2);
         allSubtasks.add(subtask3);
-        assertArrayEquals(allSubtasks.toArray(), taskManager.getSubtasks(epic.getId()).values().toArray());
+        assertArrayEquals(allSubtasks.toArray(), taskManager.getSubtasks(epic.getId()).toArray());
     }
 
     @Test

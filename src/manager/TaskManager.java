@@ -1,4 +1,6 @@
-package task;
+package manager;
+
+import task.Task;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +20,7 @@ public interface TaskManager {
 
     Map<Integer, Task> getTasksByType(Class<?> cl);
 
-    Map<Integer, Task> getSubtasks(int epicId);
+    List<Task> getSubtasks(int epicId);
 
     void printAllTasks();
 
