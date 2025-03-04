@@ -3,7 +3,7 @@ import java.util.*;
 public class InMemoryTaskManager implements TaskManager {
     private static Integer counter = 0;
     private final Map<Integer, Task> taskMap = new HashMap<>();
-    private final HistoryManager historyManager = Managers.getDefaultHistory();
+    public final HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
     public Map<Integer, Task> getAllTasks() {
@@ -114,6 +114,7 @@ public class InMemoryTaskManager implements TaskManager {
                 return;
             }
         }
+        historyManager.remove(id);
         taskMap.remove(id);
         System.out.println("INFO: Задача с идентификатором " + id + " была удалена");
     }
