@@ -38,7 +38,7 @@ class InMemoryHistoryManagerTest {
         for (int i = 0; i < 17; i++) {
             taskManager.addTask(new Task("Generated task " + (i + 1), "Descr"));
         }
-        for (Task task : taskManager.getAllTasks().values()) {
+        for (Task task : taskManager.getAllTasks()) {
             taskManager.getTaskById(task.getId());
         }
         InMemoryHistoryManager hm = (InMemoryHistoryManager) taskManager.historyManager;
@@ -91,7 +91,7 @@ class InMemoryHistoryManagerTest {
         taskManager.addTask(subtask2);
         taskManager.addTask(subtask3);
 
-        for (Task task : taskManager.getAllTasks().values()) {
+        for (Task task : taskManager.getAllTasks()) {
             taskManager.getTaskById(task.getId());
         }
         InMemoryHistoryManager hm = (InMemoryHistoryManager) taskManager.historyManager;
@@ -108,11 +108,11 @@ class InMemoryHistoryManagerTest {
             taskManager.addTask(new Task("Generated task " + (i + 1), "Descr"));
         }
         for (int i = 0; i < 3; i++) {
-            for (Task task : taskManager.getAllTasks().values()) {
+            for (Task task : taskManager.getAllTasks()) {
                 taskManager.getTaskById(task.getId());
             }
         }
-        assertArrayEquals(taskManager.getAllTasks().values().toArray(),
+        assertArrayEquals(taskManager.getAllTasks().toArray(),
                 taskManager.historyManager.getHistory().toArray());
     }
 
@@ -141,7 +141,7 @@ class InMemoryHistoryManagerTest {
         }
 
         List<Task> views = new ArrayList<>();
-        for (Task task : taskManager.getAllTasks().values()) {
+        for (Task task : taskManager.getAllTasks()) {
             views.add(taskManager.getTaskById(task.getId()));
         }
         System.out.println(taskManager.getAllTasks().size());

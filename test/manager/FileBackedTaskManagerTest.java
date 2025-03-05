@@ -39,7 +39,7 @@ class FileBackedTaskManagerTest {
         manager = FileBackedTaskManager.loadFromFile(file);
 
         List<String> tasksInCsvRAM = new ArrayList<>();
-        for (Task t : manager.getAllTasks().values()) {
+        for (Task t : manager.getAllTasks()) {
             tasksInCsvRAM.add(t.toCsvString());
         }
 
@@ -98,7 +98,7 @@ class FileBackedTaskManagerTest {
         manager.addTask(subtask2);
 
         List<String> tasksInCsvRAM = new ArrayList<>();
-        for (Task t : manager.getAllTasks().values()) {
+        for (Task t : manager.getAllTasks()) {
             tasksInCsvRAM.add(t.toCsvString());
         }
 
@@ -124,7 +124,7 @@ class FileBackedTaskManagerTest {
         manager.addTask(epic1);
 
         List<String> tasksInCsvRAM = new ArrayList<>();
-        for (Task t : manager.getAllTasks().values()) {
+        for (Task t : manager.getAllTasks()) {
             tasksInCsvRAM.add(t.toCsvString());
         }
 
@@ -145,7 +145,7 @@ class FileBackedTaskManagerTest {
         manager.updateTask(epic1);
 
         tasksInCsvRAM.clear();
-        for (Task t : manager.getAllTasks().values()) {
+        for (Task t : manager.getAllTasks()) {
             tasksInCsvRAM.add(t.toCsvString());
         }
 
@@ -170,7 +170,7 @@ class FileBackedTaskManagerTest {
         manager.addTask(epic1);
 
         List<String> tasksInCsvRAM = new ArrayList<>();
-        for (Task t : manager.getAllTasks().values()) {
+        for (Task t : manager.getAllTasks()) {
             tasksInCsvRAM.add(t.toCsvString());
         }
 
@@ -188,7 +188,7 @@ class FileBackedTaskManagerTest {
         manager.deleteTaskById(1);
 
         tasksInCsvRAM.clear();
-        for (Task t : manager.getAllTasks().values()) {
+        for (Task t : manager.getAllTasks()) {
             tasksInCsvRAM.add(t.toCsvString());
         }
 

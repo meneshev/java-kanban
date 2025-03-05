@@ -9,6 +9,7 @@ import task.Subtask;
 import task.Task;
 import task.TaskStatus;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 class InMemoryTaskManagerTest {
@@ -27,14 +28,14 @@ class InMemoryTaskManagerTest {
     public void taskAddedSuccessfully() {
         Task task1 = new Task("Some name", "Some description");
         taskManager.addTask(task1);
-        assertTrue(taskManager.getAllTasks().containsValue(task1));
+        assertTrue(taskManager.getAllTasks().contains(task1));
     }
 
     @Test
     public void taskDeletedSuccessfully() {
         Task task1 = new Task("Some name", "Some description");
         taskManager.addTask(task1);
-        assertTrue(taskManager.getAllTasks().containsValue(task1));
+        assertTrue(taskManager.getAllTasks().contains(task1));
         taskManager.deleteTaskById(task1.getId());
         assertNull(taskManager.getTaskById(task1.getId()));
     }
@@ -52,15 +53,18 @@ class InMemoryTaskManagerTest {
     public void epicAddedSuccessfully() {
         Epic epic1 = new Epic("Some name", "Some description");
         taskManager.addTask(epic1);
-        assertTrue(taskManager.getAllTasks().containsValue(epic1));
+        assertTrue(taskManager.getAllTasks().contains(epic1));
     }
 
     @Test
-    public void epicDeletedSuccessfully() {
+    public void epicAndSubtasksDeletedSuccessfully() {
         Epic epic1 = new Epic("Some name", "Some description");
         taskManager.addTask(epic1);
-        assertTrue(taskManager.getAllTasks().containsValue(epic1));
+        assertTrue(taskManager.getAllTasks().contains(epic1));
+        Subtask subtask1 = new Subtask("Some name", "Some description", epic1.getId());
+        taskManager.addTask(subtask1);
         taskManager.deleteTaskById(epic1.getId());
+        assertNull(taskManager.getTaskById(subtask1.getId()));
         assertNull(taskManager.getTaskById(epic1.getId()));
     }
 
@@ -76,9 +80,17 @@ class InMemoryTaskManagerTest {
         subtask1.setStatus(TaskStatus.DONE);
         taskManager.updateTask(subtask1);
         assertEquals(TaskStatus.IN_PROGRESS, taskManager.getTaskById(epic1.getId()).getStatus());
+        subtask1.setStatus(TaskStatus.NEW);
+        taskManager.updateTask(subtask1);
+        assertEquals(TaskStatus.NEW, taskManager.getTaskById(epic1.getId()).getStatus());
         subtask2.setStatus(TaskStatus.DONE);
+        taskManager.updateTask(subtask2);
+        subtask1.setStatus(TaskStatus.DONE);
         taskManager.updateTask(subtask1);
         assertEquals(TaskStatus.DONE, taskManager.getTaskById(epic1.getId()).getStatus());
+        subtask1.setStatus(TaskStatus.IN_PROGRESS);
+        taskManager.updateTask(subtask1);
+        assertEquals(TaskStatus.IN_PROGRESS, taskManager.getTaskById(epic1.getId()).getStatus());
     }
 
     @Test
@@ -89,8 +101,8 @@ class InMemoryTaskManagerTest {
         Subtask subtask2 = new Subtask("Some name", "Some description", epic1.getId());
         taskManager.addTask(subtask1);
         taskManager.addTask(subtask2);
-        assertTrue(taskManager.getAllTasks().containsValue(subtask1));
-        assertTrue(taskManager.getAllTasks().containsValue(subtask2));
+        assertTrue(taskManager.getAllTasks().contains(subtask1));
+        assertTrue(taskManager.getAllTasks().contains(subtask2));
     }
 
     @Test
@@ -99,7 +111,7 @@ class InMemoryTaskManagerTest {
         taskManager.addTask(epic1);
         Subtask subtask1 = new Subtask("Some name", "Some description", epic1.getId());
         taskManager.addTask(subtask1);
-        assertTrue(taskManager.getAllTasks().containsValue(subtask1));
+        assertTrue(taskManager.getAllTasks().contains(subtask1));
         taskManager.deleteTaskById(subtask1.getId());
         assertNull(taskManager.getTaskById(subtask1.getId()));
     }
@@ -138,7 +150,7 @@ class InMemoryTaskManagerTest {
         Subtask subtask = new Subtask("Some name", "Some description", epic.getId());
         taskManager.addTask(subtask);
         allTasks.add(subtask);
-        List<Task> allTasksFromManager = new ArrayList<>(taskManager.getAllTasks().values());
+        List<Task> allTasksFromManager = new ArrayList<>(taskManager.getAllTasks());
         assertArrayEquals(allTasks.toArray(), allTasksFromManager.toArray());
     }
 
@@ -242,5 +254,49 @@ class InMemoryTaskManagerTest {
         assertEquals(subtaskDescriptionAfterCreate, subtaskFromManager.getDescription());
         assertEquals(subtaskStatusAfterCreate, subtaskFromManager.getStatus());
         assertEquals(subtaskEpicId, subtaskFromManager.getEpicId());
+    }
+
+    @Test
+    public void getTaskByTypeTest() {
+        Task task = new Task("Some task name", "Some task description");
+        taskManager.addTask(task);
+        Epic epic = new Epic("Some epic name", "Some epic description");
+        taskManager.addTask(epic);
+        Subtask subtask = new Subtask("Some subtask name", "Some subtask description", epic.getId());
+        taskManager.addTask(subtask);
+
+        List<Task> tasks = new ArrayList<>();
+        tasks.add(task);
+        List<Epic> epics = new ArrayList<>();
+        epics.add(epic);
+        List<Task> subtasks = new ArrayList<>();
+        subtasks.add(subtask);
+
+        assertArrayEquals(tasks.toArray(), taskManager.getTasksByType(Task.class).toArray());
+        assertArrayEquals(epics.toArray(), taskManager.getTasksByType(Epic.class).toArray());
+        assertArrayEquals(subtasks.toArray(), taskManager.getTasksByType(Subtask.class).toArray());
+    }
+
+    @Test
+    public void deleteTaskByTypeTest() {
+        Task task = new Task("Some task name", "Some task description");
+        taskManager.addTask(task);
+        Epic epic = new Epic("Some epic name", "Some epic description");
+        taskManager.addTask(epic);
+        Subtask subtask = new Subtask("Some subtask name", "Some subtask description", epic.getId());
+        taskManager.addTask(subtask);
+
+        assertTrue(taskManager.getAllTasks().contains(task));
+        assertTrue(taskManager.getAllTasks().contains(epic));
+        assertTrue(taskManager.getAllTasks().contains(subtask));
+
+        taskManager.deleteTasksByType(Task.class);
+        assertFalse(taskManager.getAllTasks().contains(task));
+
+        taskManager.deleteTasksByType(Epic.class);
+        assertFalse(taskManager.getAllTasks().contains(epic));
+
+        taskManager.deleteTasksByType(Subtask.class);
+        assertFalse(taskManager.getAllTasks().contains(subtask));
     }
 }

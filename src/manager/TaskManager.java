@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface TaskManager {
-    Map<Integer, Task> getAllTasks();
+    List<Task> getAllTasks();
 
     void clearTasks();
 
@@ -18,7 +18,7 @@ public interface TaskManager {
 
     void deleteTaskById(Integer id);
 
-    Map<Integer, Task> getTasksByType(Class<?> cl);
+    List<Task> getTasksByType(Class<?> cl);
 
     void deleteTasksByType(Class<?> cl);
 

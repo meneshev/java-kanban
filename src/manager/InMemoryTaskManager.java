@@ -16,8 +16,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Map<Integer, Task> getAllTasks() {
-        return taskMap;
+    public List<Task> getAllTasks() {
+        return new ArrayList<>(taskMap.values());
     }
 
     @Override
@@ -71,8 +71,15 @@ public class InMemoryTaskManager implements TaskManager {
     protected Boolean validateTask(Task task) {
         if (task.getClass() == Subtask.class) {
             Subtask subtask = (Subtask) task;
-            Map<Integer, Task> epicsList = getTasksByType(Epic.class);
-            if (!epicsList.containsKey(subtask.getEpicId())) {
+            List<Task> epicsList = getTasksByType(Epic.class);
+            boolean hasEpic = false;
+            for (Task t : epicsList) {
+                if (t.getId() == subtask.getEpicId()) {
+                    hasEpic = true;
+                    break;
+                }
+            }
+            if (!hasEpic) {
                 System.out.println("WARN: Подзадача должна ссылаться на эпик");
                 return false;
             }
@@ -108,7 +115,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         if (task.getClass() == Epic.class) {
             List<Task> subtasks = getSubtasks(id);
-            System.out.println("INFO: Удаление подзадач эпика с идентификатором" + id);
+            System.out.println("INFO: Удаление подзадач эпика с идентификатором " + id);
             for (Task subtask : subtasks) {
                 taskMap.remove(subtask.getId());
             }
@@ -133,7 +140,8 @@ public class InMemoryTaskManager implements TaskManager {
         for (Task t : subtasks) {
             if (t.getStatus() != TaskStatus.DONE) {
                 allSubtasksIsDone = false;
-            } else if (t.getStatus() != TaskStatus.NEW) {
+            }
+            if (t.getStatus() != TaskStatus.NEW) {
                 allSubtasksIsNew = false;
             }
 
@@ -155,11 +163,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Map<Integer, Task> getTasksByType(Class<?> cl) {
-        Map<Integer, Task> tasks = new HashMap<>();
+    public List<Task> getTasksByType(Class<?> cl) {
+        List<Task> tasks = new ArrayList<>();
         for (Task task : taskMap.values()) {
             if (task.getClass() == cl) {
-                tasks.put(task.getId(), task);
+                tasks.add(task);
             }
         }
         return tasks;
@@ -181,7 +189,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getSubtasks(int epicId) {
         List<Task> subtasks = new ArrayList<>();
-        for (Task t : getTasksByType(Subtask.class).values()) {
+        for (Task t : getTasksByType(Subtask.class)) {
             if (((Subtask) t).getEpicId() == epicId) {
                 subtasks.add(t);
             }
@@ -202,15 +210,15 @@ public class InMemoryTaskManager implements TaskManager {
     public void printAllTasks() {
         System.out.println("*****");
         System.out.println("Задачи:");
-        for (Task t : getTasksByType(Task.class).values()) {
+        for (Task t : getTasksByType(Task.class)) {
             System.out.println(t);
         }
         System.out.println("Эпики:");
-        for (Task t : getTasksByType(Epic.class).values()) {
+        for (Task t : getTasksByType(Epic.class)) {
             System.out.println(t);
         }
         System.out.println("Подзадачи:");
-        for (Task t : getTasksByType(Subtask.class).values()) {
+        for (Task t : getTasksByType(Subtask.class)) {
             System.out.println(t);
         }
         System.out.println("*****");
