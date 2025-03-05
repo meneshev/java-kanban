@@ -9,7 +9,6 @@ import task.Subtask;
 import task.Task;
 import task.TaskStatus;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 class InMemoryTaskManagerTest {
