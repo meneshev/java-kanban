@@ -1,3 +1,8 @@
+package manager;
+
+import task.Epic;
+import task.Subtask;
+import task.Task;
 import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
@@ -5,14 +10,17 @@ public class InMemoryHistoryManager implements HistoryManager {
     private Node<Task> lastElement;
     public final HashMap<Integer, Node<Task>> historyMap = new HashMap<>();
 
-    public void add(Task task) throws CloneNotSupportedException {
+    public void add(Task task)  {
         if (Objects.isNull(task)) {
             return;
         }
-
-        Task clonedTask = task.clone();
-        linkLast(clonedTask, historyMap.containsKey(clonedTask.getId()));
-        historyMap.put(task.getId(), lastElement);
+        try {
+            Task clonedTask = task.clone();
+            linkLast(clonedTask, historyMap.containsKey(clonedTask.getId()));
+            historyMap.put(task.getId(), lastElement);
+        } catch (CloneNotSupportedException e) {
+            System.out.println("WARN: Ошибка при добавлении задачи в историю");
+        }
     }
 
     private void linkLast(Task task, boolean nodeAlreadyExist) {
@@ -56,7 +64,11 @@ public class InMemoryHistoryManager implements HistoryManager {
         List<Task> tasks = new ArrayList<>();
         Node<Task> current = firstElement;
         while (current != null) {
-            tasks.add(current.data);
+            try {
+                tasks.add(current.data.clone());
+            } catch (CloneNotSupportedException e) {
+                System.out.println("WARN: Ошибка при клонировании задачи");
+            }
             current = current.next;
         }
         return tasks;
@@ -70,7 +82,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void clearHistory() {
         for (Node<Task> x = firstElement; x != null; ) {
-            Node<Task>  next = x.next;
+            Node<Task> next = x.next;
             x.data = null;
             x.next = null;
             x.previous = null;

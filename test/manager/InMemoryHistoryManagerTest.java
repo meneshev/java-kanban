@@ -1,10 +1,15 @@
+package manager;
+
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import task.Epic;
+import task.Subtask;
+import task.Task;
+import task.TaskStatus;
 import java.util.ArrayList;
 import java.util.List;
-
 
 class InMemoryHistoryManagerTest {
     private static InMemoryTaskManager taskManager;
@@ -33,11 +38,11 @@ class InMemoryHistoryManagerTest {
         for (int i = 0; i < 17; i++) {
             taskManager.addTask(new Task("Generated task " + (i + 1), "Descr"));
         }
-        for (Task task : taskManager.getAllTasks().values()) {
+        for (Task task : taskManager.getAllTasks()) {
             taskManager.getTaskById(task.getId());
         }
         InMemoryHistoryManager hm = (InMemoryHistoryManager) taskManager.historyManager;
-        int historySize = hm.historyMap.size();
+        int historySize = hm.getHistory().size();
 
         // удалим 1-ый элемент, ожидаем что у 2-го элемента prev станет null
         Node<Task> nextDeleted = hm.historyMap.get(2);
@@ -86,7 +91,7 @@ class InMemoryHistoryManagerTest {
         taskManager.addTask(subtask2);
         taskManager.addTask(subtask3);
 
-        for (Task task : taskManager.getAllTasks().values()) {
+        for (Task task : taskManager.getAllTasks()) {
             taskManager.getTaskById(task.getId());
         }
         InMemoryHistoryManager hm = (InMemoryHistoryManager) taskManager.historyManager;
@@ -103,11 +108,11 @@ class InMemoryHistoryManagerTest {
             taskManager.addTask(new Task("Generated task " + (i + 1), "Descr"));
         }
         for (int i = 0; i < 3; i++) {
-            for (Task task : taskManager.getAllTasks().values()) {
+            for (Task task : taskManager.getAllTasks()) {
                 taskManager.getTaskById(task.getId());
             }
         }
-        assertArrayEquals(taskManager.getAllTasks().values().toArray(),
+        assertArrayEquals(taskManager.getAllTasks().toArray(),
                 taskManager.historyManager.getHistory().toArray());
     }
 
@@ -136,7 +141,7 @@ class InMemoryHistoryManagerTest {
         }
 
         List<Task> views = new ArrayList<>();
-        for (Task task : taskManager.getAllTasks().values()) {
+        for (Task task : taskManager.getAllTasks()) {
             views.add(taskManager.getTaskById(task.getId()));
         }
         System.out.println(taskManager.getAllTasks().size());
@@ -145,7 +150,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void tasksInTaskManagerAreSnapshots() throws CloneNotSupportedException {
+    public void tasksInTaskManagerAreSnapshots() {
         Task task = new Task("Task name", "Task description");
         taskManager.addTask(task);
         taskManager.getTaskById(InMemoryTaskManager.getLastTaskId());
