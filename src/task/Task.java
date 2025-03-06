@@ -1,3 +1,5 @@
+package task;
+
 import java.util.Objects;
 
 public class Task implements Cloneable {
@@ -10,6 +12,13 @@ public class Task implements Cloneable {
         this.name = name;
         this.description = description;
         this.status = TaskStatus.NEW;
+    }
+
+    public Task(String name, String description, Integer id, TaskStatus status) {
+        this.name = name;
+        this.description = description;
+        this.id = id;
+        this.status = status;
     }
 
     public String getName() {
@@ -57,7 +66,7 @@ public class Task implements Cloneable {
     }
 
     @Override
-    protected Task clone() throws CloneNotSupportedException {
+    public Task clone() throws CloneNotSupportedException {
         return (Task) super.clone();
     }
 
@@ -69,5 +78,14 @@ public class Task implements Cloneable {
                 ", id=" + id +
                 ", status=" + status +
                 '}';
+    }
+
+    public String toCsvString() {
+        return new StringBuilder(id.toString()).append(",")
+                .append(this.getClass().getSimpleName().toUpperCase()).append(",")
+                .append(name).append(",")
+                .append(status.name()).append(",")
+                .append(description)
+                .toString();
     }
 }
