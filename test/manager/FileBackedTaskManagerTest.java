@@ -1,115 +1,148 @@
 package manager;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.Epic;
 import task.Subtask;
 import task.Task;
+import util.ObjectBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileBackedTaskManagerTest {
-    private static FileBackedTaskManager manager;
+class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
-    @BeforeAll
-    static void prepareFileBackedTaskManager() {
+    @BeforeEach
+    public void prepareFileBackedTaskManager() {
         try {
             Path tmpPath = Files.createTempFile( "temp", ".txt");
-            manager = new FileBackedTaskManager(tmpPath);
+            taskManager = new FileBackedTaskManager(tmpPath);
         } catch (IOException e) {
             System.out.println("ERROR: проблема при создании временного файла");
         }
     }
 
-    @BeforeEach
+    @AfterEach
     void setUp() {
-        manager.clearTasks();
+        taskManager.clearTasks();
     }
 
+
     @Test
-    void loadFromFile() {
-        final Path file = Path.of("test/resources/fileForLoad.txt");
-        manager = FileBackedTaskManager.loadFromFile(file);
+    void loadFromFile() throws IOException {
+        Path file = Path.of("test/resources/fileForLoad.txt");
 
-        List<String> tasksInCsvRAM = new ArrayList<>();
-        for (Task t : manager.getAllTasks()) {
-            tasksInCsvRAM.add(t.toCsvString());
-        }
+        assertDoesNotThrow(() -> {
+            taskManager = FileBackedTaskManager.loadFromFile(file);
+        });
 
-        List<String> tasksInCsvFile = new ArrayList<>();
+        List<String> tasksInCsvRAM = taskManager.getAllTasks().stream()
+                .map(Task::toCsvString)
+                .toList();
+
+        List<String> tasksInCsvFile;
         try (BufferedReader reader = Files.newBufferedReader(file)) {
-            reader.readLine(); // заголовок не нужен
-            while (reader.ready()) {
-                tasksInCsvFile.add(reader.readLine());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            tasksInCsvFile = reader.lines()
+                    .skip(1)
+                    .toList();
         }
 
         assertArrayEquals(tasksInCsvRAM.toArray(), tasksInCsvFile.toArray());
     }
 
     @Test
-    void clearTasks() {
-        Task task1 = new Task("Some name", "Some description");
-        manager.addTask(task1);
+    public void clearTasks() {
+        Task task1 = ObjectBuilder.of(Task::new)
+                .with(Task::setName, "Some name")
+                .with(Task::setDescription, "Some description")
+                .with(Task::setDuration, 30L)
+                .build();
+        taskManager.addTask(task1);
 
-        Epic epic1 = new Epic("Some name", "Some description");
-        manager.addTask(epic1);
+        Epic epic1 = ObjectBuilder.of(Epic::new)
+                .with(Epic::setName, "Some name")
+                .with(Epic::setDescription, "Some description")
+                .build();
+        taskManager.addTask(epic1);
 
-        Subtask subtask1 = new Subtask("Some name", "Some description", epic1.getId());
-        manager.addTask(subtask1);
+        Subtask subtask1 = ObjectBuilder.of(Subtask::new)
+                .with(Subtask::setName, "Some name")
+                .with(Subtask::setDescription, "Some description")
+                .with(Subtask::setDuration, 30L)
+                .with(Subtask::setEpicId, epic1.getId())
+                .build();
+        taskManager.addTask(subtask1);
 
-        Subtask subtask2 = new Subtask("Some name", "Some description", epic1.getId());
-        manager.addTask(subtask2);
+        Subtask subtask2 = ObjectBuilder.of(Subtask::new)
+                .with(Subtask::setName, "Some name")
+                .with(Subtask::setDescription, "Some description")
+                .with(Subtask::setDuration, 30L)
+                .with(Subtask::setEpicId, epic1.getId())
+                .build();
+        taskManager.addTask(subtask2);
 
         try (BufferedReader reader = Files.newBufferedReader(FileBackedTaskManager.getSourcePath())) {
             reader.readLine(); // заголовок не нужен
             assertEquals(task1.toCsvString(), reader.readLine());
-            manager.clearTasks();
+            taskManager.clearTasks();
             StringBuilder fileAfterClear = new StringBuilder();
             List<String> fileLines =  Files.readAllLines(FileBackedTaskManager.getSourcePath());
-            for (String s : fileLines) fileAfterClear.append(s);
+            fileLines.forEach(fileAfterClear::append);
             assertEquals("", fileAfterClear.toString());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
     @Test
     void addTask() {
-        Task task1 = new Task("Some name", "Some description");
-        manager.addTask(task1);
+        Task task1 = ObjectBuilder.of(Task::new)
+                .with(Task::setName, "Some name")
+                .with(Task::setDescription, "Some description")
+                .with(Task::setDuration, 30L)
+                .build();
+        taskManager.addTask(task1);
 
-        Epic epic1 = new Epic("Some name", "Some description");
-        manager.addTask(epic1);
+        Epic epic1 = ObjectBuilder.of(Epic::new)
+                .with(Epic::setName, "Some name")
+                .with(Epic::setDescription, "Some description")
+                .build();
+        taskManager.addTask(epic1);
 
-        Subtask subtask1 = new Subtask("Some name", "Some description", epic1.getId());
-        manager.addTask(subtask1);
+        Subtask subtask1 = ObjectBuilder.of(Subtask::new)
+                .with(Subtask::setName, "Some name")
+                .with(Subtask::setDescription, "Some description")
+                .with(Subtask::setDuration, 30L)
+                .with(Subtask::setEpicId, epic1.getId())
+                .build();
+        taskManager.addTask(subtask1);
 
-        Subtask subtask2 = new Subtask("Some name", "Some description", epic1.getId());
-        manager.addTask(subtask2);
+        Subtask subtask2 = ObjectBuilder.of(Subtask::new)
+                .with(Subtask::setName, "Some name")
+                .with(Subtask::setDescription, "Some description")
+                .with(Subtask::setDuration, 30L)
+                .with(Subtask::setEpicId, epic1.getId())
+                .build();
+        taskManager.addTask(subtask2);
 
-        List<String> tasksInCsvRAM = new ArrayList<>();
-        for (Task t : manager.getAllTasks()) {
-            tasksInCsvRAM.add(t.toCsvString());
-        }
+        List<String> tasksInCsvRAM = taskManager.getAllTasks().stream()
+                .map(Task::toCsvString)
+                .toList();
 
         List<String> tasksInCsvFile = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(FileBackedTaskManager.getSourcePath())) {
-            reader.readLine(); // заголовок не нужен
-            while (reader.ready()) {
-                tasksInCsvFile.add(reader.readLine());
-            }
+            tasksInCsvFile = reader.lines()
+                    .skip(1)
+                    .toList();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
         assertArrayEquals(tasksInCsvRAM.toArray(), tasksInCsvFile.toArray());
@@ -117,90 +150,113 @@ class FileBackedTaskManagerTest {
 
     @Test
     void updateTask() {
-        Task task1 = new Task("Some name", "Some description");
-        manager.addTask(task1);
+        Task task1 = ObjectBuilder.of(Task::new)
+                .with(Task::setName, "Some name")
+                .with(Task::setDescription, "Some description")
+                .with(Task::setDuration, 30L)
+                .build();
+        taskManager.addTask(task1);
 
-        Epic epic1 = new Epic("Some name", "Some description");
-        manager.addTask(epic1);
 
-        List<String> tasksInCsvRAM = new ArrayList<>();
-        for (Task t : manager.getAllTasks()) {
-            tasksInCsvRAM.add(t.toCsvString());
-        }
+        Epic epic1 = ObjectBuilder.of(Epic::new)
+                .with(Epic::setName, "Some name")
+                .with(Epic::setDescription, "Some description")
+                .build();
+        taskManager.addTask(epic1);
+
+        List<String> tasksInCsvRAM = taskManager.getAllTasks().stream()
+                .map(Task::toCsvString)
+                .collect(Collectors.toCollection(ArrayList::new));
 
         List<String> tasksInCsvFile = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(FileBackedTaskManager.getSourcePath())) {
-            reader.readLine(); // заголовок не нужен
-            while (reader.ready()) {
-                tasksInCsvFile.add(reader.readLine());
-            }
-            assertArrayEquals(tasksInCsvRAM.toArray(), tasksInCsvFile.toArray());
+            tasksInCsvFile = reader.lines()
+                    .skip(1)
+                    .collect(Collectors.toCollection(ArrayList::new));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+
+        assertArrayEquals(tasksInCsvRAM.toArray(), tasksInCsvFile.toArray());
 
         task1.setDescription("New description");
         epic1.setName("New name");
-        manager.updateTask(task1);
-        manager.updateTask(epic1);
+        taskManager.updateTask(task1);
+        taskManager.updateTask(epic1);
 
         tasksInCsvRAM.clear();
-        for (Task t : manager.getAllTasks()) {
-            tasksInCsvRAM.add(t.toCsvString());
+
+        tasksInCsvRAM = taskManager.getAllTasks().stream()
+                .map(Task::toCsvString)
+                .toList();
+
+        tasksInCsvFile.clear();
+
+        try (BufferedReader reader = Files.newBufferedReader(FileBackedTaskManager.getSourcePath())) {
+            tasksInCsvFile = reader.lines()
+                    .skip(1)
+                    .toList();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         try (BufferedReader reader = Files.newBufferedReader(FileBackedTaskManager.getSourcePath())) {
-            reader.readLine(); // заголовок не нужен
-            tasksInCsvFile.clear();
-            while (reader.ready()) {
-                tasksInCsvFile.add(reader.readLine());
-            }
-            assertArrayEquals(tasksInCsvRAM.toArray(), tasksInCsvFile.toArray());
+            tasksInCsvFile = reader.lines()
+                    .skip(1)
+                    .toList();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+
+
+        assertArrayEquals(tasksInCsvRAM.toArray(), tasksInCsvFile.toArray());
     }
 
     @Test
     void deleteTaskById() {
-        Task task1 = new Task("Some name", "Some description");
-        manager.addTask(task1);
+        Task task1 = ObjectBuilder.of(Task::new)
+                .with(Task::setName, "Some name")
+                .with(Task::setDescription, "Some description")
+                .with(Task::setDuration, 30L)
+                .build();
+        taskManager.addTask(task1);
 
-        Epic epic1 = new Epic("Some name", "Some description");
-        manager.addTask(epic1);
+        Epic epic1 = ObjectBuilder.of(Epic::new)
+                .with(Epic::setName, "Some name")
+                .with(Epic::setDescription, "Some description")
+                .build();
+        taskManager.addTask(epic1);
 
-        List<String> tasksInCsvRAM = new ArrayList<>();
-        for (Task t : manager.getAllTasks()) {
-            tasksInCsvRAM.add(t.toCsvString());
-        }
+        List<String> tasksInCsvRAM = taskManager.getAllTasks().stream()
+                .map(Task::toCsvString)
+                .collect(Collectors.toCollection(ArrayList::new));
 
         List<String> tasksInCsvFile = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(FileBackedTaskManager.getSourcePath())) {
-            reader.readLine(); // заголовок не нужен
-            while (reader.ready()) {
-                tasksInCsvFile.add(reader.readLine());
-            }
-            assertArrayEquals(tasksInCsvRAM.toArray(), tasksInCsvFile.toArray());
+            tasksInCsvFile = reader.lines()
+                    .skip(1)
+                    .collect(Collectors.toCollection(ArrayList::new));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
-        manager.deleteTaskById(1);
+        assertArrayEquals(tasksInCsvRAM.toArray(), tasksInCsvFile.toArray());
+
+        taskManager.deleteTaskById(1);
 
         tasksInCsvRAM.clear();
-        for (Task t : manager.getAllTasks()) {
-            tasksInCsvRAM.add(t.toCsvString());
-        }
+        tasksInCsvRAM = taskManager.getAllTasks().stream()
+                .map(Task::toCsvString)
+                .toList();
 
+        tasksInCsvFile.clear();
         try (BufferedReader reader = Files.newBufferedReader(FileBackedTaskManager.getSourcePath())) {
-            reader.readLine(); // заголовок не нужен
-            tasksInCsvFile.clear();
-            while (reader.ready()) {
-                tasksInCsvFile.add(reader.readLine());
-            }
-            assertArrayEquals(tasksInCsvRAM.toArray(), tasksInCsvFile.toArray());
+            tasksInCsvFile = reader.lines()
+                    .skip(1)
+                    .toList();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+        assertArrayEquals(tasksInCsvRAM.toArray(), tasksInCsvFile.toArray());
     }
 }

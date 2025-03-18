@@ -98,19 +98,19 @@ public class InMemoryHistoryManager implements HistoryManager {
         Task deletedTask = historyMap.get(id).data;
         // при удалении эпика, сначала удаляем его подзадачи
         if (deletedTask.getClass() == Epic.class) {
-            List<Integer> subtaskIds = new ArrayList<>();
-            for (Node<Task> t : historyMap.values()) {
-                if (t.data.getClass() == Subtask.class) {
-                    Subtask subtask = (Subtask) t.data;
-                    if (subtask.getEpicId().equals(deletedTask.getId())) {
-                        subtaskIds.add(subtask.getId());
-                    }
-                }
-            }
-            if (!subtaskIds.isEmpty()) {
-                subtaskIds.forEach(el -> removeNode(historyMap.get(el)));
-                subtaskIds.forEach(el -> historyMap.remove(el));
-            }
+            List<Integer> subtaskIds = historyMap.values().stream()
+                    .map(taskNode -> taskNode.data)
+                    .filter(Subtask.class::isInstance)
+                    .map(Subtask.class::cast)
+                    .filter(subtask -> Objects.equals(subtask.getEpicId(), deletedTask.getId()))
+                    .map(Task::getId)
+                    .toList();
+
+            subtaskIds.forEach(subtask -> {
+                removeNode(historyMap.get(subtask));
+                historyMap.remove(subtask);
+            });
+
         }
         removeNode(historyMap.get(id));
         historyMap.remove(id);

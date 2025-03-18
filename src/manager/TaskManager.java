@@ -1,5 +1,6 @@
 package manager;
 
+import task.Subtask;
 import task.Task;
 import java.util.List;
 
@@ -20,9 +21,11 @@ public interface TaskManager {
 
     void deleteTasksByType(Class<?> cl);
 
-    List<Task> getSubtasks(int epicId);
+    List<Subtask> getSubtasks(int epicId);
 
     void printAllTasks();
 
     List<? extends Task> getHistory();
+
+    List<Task> getPrioritizedTasks();
 }
