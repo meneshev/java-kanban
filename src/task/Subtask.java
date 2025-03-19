@@ -1,9 +1,9 @@
+package task;
+
 public class Subtask extends Task {
     private Integer epicId;
 
-    public Subtask(String name, String description, int epicId) {
-        super(name, description);
-        this.epicId = epicId;
+    public Subtask() {
     }
 
     public Integer getEpicId() {
@@ -22,6 +22,15 @@ public class Subtask extends Task {
                 ", id=" + super.getId() +
                 ", status=" + super.getStatus() +
                 ", epicId=" + epicId +
+                ", duration=" + super.getDuration().toMinutes() +
+                ", startTime=" + super.getStartTime().orElse(null) +
+                ", endTime=" + super.getEndTime().orElse(null) +
                 '}';
+    }
+
+    @Override
+    public String toCsvString() {
+        return super.toCsvString() +
+                getEpicId();
     }
 }
