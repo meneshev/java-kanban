@@ -1,24 +1,21 @@
 package task;
 
+import util.Formats;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Task implements Cloneable {
     private String name;
     private String description;
     private Integer id;
     private TaskStatus status;
+    private Duration duration;
+    private LocalDateTime startTime;
 
-    public Task(String name, String description) {
-        this.name = name;
-        this.description = description;
+    public Task() {
         this.status = TaskStatus.NEW;
-    }
-
-    public Task(String name, String description, Integer id, TaskStatus status) {
-        this.name = name;
-        this.description = description;
-        this.id = id;
-        this.status = status;
     }
 
     public String getName() {
@@ -53,6 +50,27 @@ public class Task implements Cloneable {
         this.status = status;
     }
 
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Long duration) {
+        this.duration = Duration.ofMinutes(duration);
+    }
+
+    public Optional<LocalDateTime> getStartTime() {
+        return Optional.ofNullable(startTime);
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public Optional<LocalDateTime> getEndTime() {
+        return getStartTime().isPresent() ?
+                Optional.of(startTime.plusMinutes(duration.toMinutes())) : Optional.empty();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -77,15 +95,23 @@ public class Task implements Cloneable {
                 ", description='" + description + '\'' +
                 ", id=" + id +
                 ", status=" + status +
+                ", duration=" + duration.toMinutes() +
+                ", startTime=" + startTime +
+                ", endTime=" + getEndTime().orElse(null) +
                 '}';
     }
 
     public String toCsvString() {
-        return new StringBuilder(id.toString()).append(",")
+        StringBuilder csvString = new StringBuilder(id.toString()).append(",")
                 .append(this.getClass().getSimpleName().toUpperCase()).append(",")
                 .append(name).append(",")
                 .append(status.name()).append(",")
-                .append(description)
-                .toString();
+                .append(description).append(",")
+                .append(duration.toMinutes()).append(",");
+
+        if (this.startTime != null) {
+            csvString.append(Optional.of(startTime).get().format(Formats.csvDateTimeFormat));
+        }
+        return csvString.append(",").toString();
     }
 }

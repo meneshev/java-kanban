@@ -8,6 +8,7 @@ import manager.TaskManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import util.ObjectBuilder;
 
 public class SubtaskTest {
     private static TaskManager taskManager;
@@ -23,10 +24,23 @@ public class SubtaskTest {
 
     @Test
     public void subtasksAreEqualsIfTheyHaveTheSameId() {
-        Epic epic1 = new Epic("Some name", "Some description");
+        Epic epic1 = ObjectBuilder.of(Epic::new)
+                .with(Epic::setName, "Some name")
+                .with(Epic::setDescription, "Some description")
+                .build();
         taskManager.addTask(epic1);
-        Subtask subtask1 = new Subtask("Some name", "Some description", epic1.getId());
-        Subtask subtask2 = new Subtask("Some name", "Some description", epic1.getId());
+        Subtask subtask1 = ObjectBuilder.of(Subtask::new)
+                .with(Subtask::setName, "Some name")
+                .with(Subtask::setDescription, "Some description")
+                .with(Subtask::setDuration, 30L)
+                .with(Subtask::setEpicId, epic1.getId())
+                .build();
+        Subtask subtask2 = ObjectBuilder.of(Subtask::new)
+                .with(Subtask::setName, "Some name")
+                .with(Subtask::setDescription, "Some description")
+                .with(Subtask::setDuration, 30L)
+                .with(Subtask::setEpicId, epic1.getId())
+                .build();
         taskManager.addTask(subtask1);
         taskManager.addTask(subtask2);
         assertNotEquals(subtask1, subtask2);

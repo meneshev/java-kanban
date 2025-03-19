@@ -8,6 +8,7 @@ import manager.TaskManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import util.ObjectBuilder;
 
 class EpicTest {
     private static TaskManager taskManager;
@@ -23,8 +24,14 @@ class EpicTest {
 
     @Test
     public void epicsAreEqualsIfTheyHaveTheSameId() {
-        Epic epic1 = new Epic("Some name", "Some description");
-        Epic epic2 = new Epic("Some name", "Some description");
+        Epic epic1 = ObjectBuilder.of(Epic::new)
+                .with(Epic::setName, "Some name")
+                .with(Epic::setDescription, "Some description")
+                .build();
+        Epic epic2 = ObjectBuilder.of(Epic::new)
+                .with(Epic::setName, "Some name")
+                .with(Epic::setDescription, "Some description")
+                .build();
         taskManager.addTask(epic1);
         taskManager.addTask(epic2);
         assertNotEquals(epic1, epic2);

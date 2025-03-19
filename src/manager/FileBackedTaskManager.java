@@ -5,16 +5,19 @@ import task.Epic;
 import task.Subtask;
 import task.Task;
 import task.TaskStatus;
+import util.Formats;
+import util.ObjectBuilder;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private static final Path DEFAULT_PATH = Paths.get("resources/tasks.txt");
     private static Path sourcePath;
-    private static final String csvHeader = "id,type,name,status,description,epicId";
+    private static final String csvHeader = "id,type,name,status,description,duration,startTime,epicId";
 
     public FileBackedTaskManager() {
         sourcePath = DEFAULT_PATH;
@@ -65,38 +68,49 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     System.out.println("ERROR: Ошибка при загрузке из файла: неизвестный тип задачи");
                     return new FileBackedTaskManager();
                 }
-
                 switch (taskType) {
                     case TASK:
-                        tmpTaskMap.put(Integer.parseInt(taskFromRow[fields.get("id")]),
-                                new Task(
-                                        taskFromRow[fields.get("name")],
-                                        taskFromRow[fields.get("description")],
-                                        Integer.parseInt(taskFromRow[fields.get("id")]),
-                                        TaskStatus.valueOf(taskFromRow[fields.get("status")])
-                                    )
-                                );
+                        Task task = ObjectBuilder.of(Task::new)
+                                .with(Task::setId, Integer.parseInt(taskFromRow[fields.get("id")]))
+                                .with(Task::setName, taskFromRow[fields.get("name")])
+                                .with(Task::setStatus, TaskStatus.valueOf(taskFromRow[fields.get("status")]))
+                                .with(Task::setDescription, taskFromRow[fields.get("description")])
+                                .with(Task::setDuration, Long.parseLong(taskFromRow[fields.get("duration")]))
+                                .build();
+
+                        if (taskFromRow.length > 6) {
+                            task.setStartTime(LocalDateTime.parse(taskFromRow[fields.get("startTime")],
+                                    Formats.csvDateTimeFormat));
+                        }
+
+                        tmpTaskMap.put(task.getId(), task);
                         break;
                     case EPIC:
-                        tmpTaskMap.put(Integer.parseInt(taskFromRow[fields.get("id")]),
-                                new Epic(
-                                        taskFromRow[fields.get("name")],
-                                        taskFromRow[fields.get("description")],
-                                        Integer.parseInt(taskFromRow[fields.get("id")]),
-                                        TaskStatus.valueOf(taskFromRow[fields.get("status")])
-                                    )
-                                );
+                        Epic epic = ObjectBuilder.of(Epic::new)
+                                .with(Epic::setId, Integer.parseInt(taskFromRow[fields.get("id")]))
+                                .with(Epic::setName, taskFromRow[fields.get("name")])
+                                .with(Epic::setStatusForce, TaskStatus.valueOf(taskFromRow[fields.get("status")]))
+                                .with(Epic::setDescription, taskFromRow[fields.get("description")])
+                                .build();
+
+                        tmpTaskMap.put(epic.getId(), epic);
                         break;
                     case SUBTASK:
-                        tmpTaskMap.put(Integer.parseInt(taskFromRow[fields.get("id")]),
-                                new Subtask(
-                                        taskFromRow[fields.get("name")],
-                                        taskFromRow[fields.get("description")],
-                                        Integer.parseInt(taskFromRow[fields.get("id")]),
-                                        TaskStatus.valueOf(taskFromRow[fields.get("status")]),
-                                        Integer.parseInt(taskFromRow[fields.get("epicId")])
-                                    )
-                                );
+                        Subtask subtask = ObjectBuilder.of(Subtask::new)
+                                .with(Subtask::setId, Integer.parseInt(taskFromRow[fields.get("id")]))
+                                .with(Subtask::setName, taskFromRow[fields.get("name")])
+                                .with(Subtask::setStatus, TaskStatus.valueOf(taskFromRow[fields.get("status")]))
+                                .with(Subtask::setDescription, taskFromRow[fields.get("description")])
+                                .with(Subtask::setDuration, Long.parseLong(taskFromRow[fields.get("duration")]))
+                                .with(Subtask::setEpicId, Integer.parseInt(taskFromRow[fields.get("epicId")]))
+                                .build();
+
+                        if (!taskFromRow[fields.get("startTime")].isBlank()) {
+                            subtask.setStartTime(LocalDateTime.parse(taskFromRow[fields.get("startTime")],
+                                    Formats.csvDateTimeFormat));
+                        }
+
+                        tmpTaskMap.put(subtask.getId(),subtask);
                         break;
                 }
             }
@@ -130,10 +144,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     writer.newLine();
                 }
 
-                for (Task task : taskMap.values()) {
-                    writer.append(task.toCsvString());
-                    writer.newLine();
-                }
+//                for (Task task : taskMap.values()) {
+//                    writer.append(task.toCsvString());
+//                    writer.newLine();
+//                }
+                taskMap.values().forEach(task -> {
+                    try {
+                        writer.append(task.toCsvString());
+                        writer.newLine();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка во время работы с файлом");

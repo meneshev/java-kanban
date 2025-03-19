@@ -1,47 +1,56 @@
 package manager;
 
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.BeforeAll;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.Epic;
 import task.Subtask;
 import task.Task;
 import task.TaskStatus;
+import util.ObjectBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-class InMemoryHistoryManagerTest {
-    private static InMemoryTaskManager taskManager;
+class InMemoryHistoryManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
-    @BeforeAll
-    public static void prepareTaskManager() {
+    @BeforeEach
+    public void prepareTaskManager() {
         taskManager = new InMemoryTaskManager();
     }
 
-    @BeforeEach
-    public void clearTasks() {
-        taskManager.clearTasks();
-        taskManager.clearHistory();
-    }
-
     @Test
-    public void viewAddToHistory() throws CloneNotSupportedException {
-        Task task = new Task("Task name", "Task description");
+    public void viewAddToHistory() {
+        Task task = ObjectBuilder.of(Task::new)
+                .with(Task::setName, "Some name")
+                .with(Task::setDescription, "Some description")
+                .with(Task::setDuration, 30L)
+                .build();
         taskManager.addTask(task);
         taskManager.getTaskById(InMemoryTaskManager.getLastTaskId());
+        taskManager.getTaskById(InMemoryTaskManager.getLastTaskId());
         assertTrue(taskManager.getHistory().contains(task));
+        assertEquals(1, taskManager.getHistory().size());
     }
 
     @Test
-    public void commonRemove() throws CloneNotSupportedException {
-        for (int i = 0; i < 17; i++) {
-            taskManager.addTask(new Task("Generated task " + (i + 1), "Descr"));
-        }
-        for (Task task : taskManager.getAllTasks()) {
-            taskManager.getTaskById(task.getId());
-        }
+    public void commonRemove() {
         InMemoryHistoryManager hm = (InMemoryHistoryManager) taskManager.historyManager;
+
+        // удаление на пустой истории
+        hm.remove(100);
+
+        for (int i = 0; i < 17; i++) {
+            taskManager.addTask(ObjectBuilder.of(Task::new)
+                    .with(Task::setName, "Some name")
+                    .with(Task::setDescription, "Some description")
+                    .with(Task::setDuration, 30L)
+                    .build());
+        }
+
+        taskManager.getAllTasks().forEach(task -> taskManager.getTaskById(task.getId()));
+
+
         int historySize = hm.getHistory().size();
 
         // удалим 1-ый элемент, ожидаем что у 2-го элемента prev станет null
@@ -77,23 +86,37 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void epicRemove() throws CloneNotSupportedException {
-        Epic epic1 = new Epic("Epic1 name", "Epic1 description");
+    public void epicRemove() {
+        Epic epic1 = ObjectBuilder.of(Epic::new)
+                .with(Epic::setName, "Some name")
+                .with(Epic::setDescription, "Some description")
+                .build();
         taskManager.addTask(epic1);
         Integer epic1Id = InMemoryTaskManager.getLastTaskId();
-        Subtask subtask1 = new Subtask("Subtask1 name", "Subtask1 description",
-                epic1Id);
-        Subtask subtask2 = new Subtask("Subtask2 name", "Subtask2 description",
-                epic1Id);
-        Subtask subtask3 = new Subtask("Subtask3 name", "Subtask3 description",
-                epic1Id);
+        Subtask subtask1 = ObjectBuilder.of(Subtask::new)
+                .with(Subtask::setName, "Some name")
+                .with(Subtask::setDescription, "Some description")
+                .with(Subtask::setDuration, 30L)
+                .with(Subtask::setEpicId, epic1Id)
+                .build();
+        Subtask subtask2 = ObjectBuilder.of(Subtask::new)
+                .with(Subtask::setName, "Some name")
+                .with(Subtask::setDescription, "Some description")
+                .with(Subtask::setDuration, 30L)
+                .with(Subtask::setEpicId, epic1Id)
+                .build();
+        Subtask subtask3 = ObjectBuilder.of(Subtask::new)
+                .with(Subtask::setName, "Some name")
+                .with(Subtask::setDescription, "Some description")
+                .with(Subtask::setDuration, 30L)
+                .with(Subtask::setEpicId, epic1Id)
+                .build();
         taskManager.addTask(subtask1);
         taskManager.addTask(subtask2);
         taskManager.addTask(subtask3);
 
-        for (Task task : taskManager.getAllTasks()) {
-            taskManager.getTaskById(task.getId());
-        }
+        taskManager.getAllTasks().forEach(task -> taskManager.getTaskById(task.getId()));
+
         InMemoryHistoryManager hm = (InMemoryHistoryManager) taskManager.historyManager;
         int historySize = hm.historyMap.size();
         assertEquals(4, historySize);
@@ -103,47 +126,78 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void historyContainsOnlyUniqueTasks() throws CloneNotSupportedException {
+    public void historyContainsOnlyUniqueTasks() {
         for (int i = 0; i < 17; i++) {
-            taskManager.addTask(new Task("Generated task " + (i + 1), "Descr"));
+            taskManager.addTask(ObjectBuilder.of(Task::new)
+                    .with(Task::setName, "Some name")
+                    .with(Task::setDescription, "Some description")
+                    .with(Task::setDuration, 30L)
+                    .build());
         }
         for (int i = 0; i < 3; i++) {
-            for (Task task : taskManager.getAllTasks()) {
-                taskManager.getTaskById(task.getId());
-            }
+            taskManager.getAllTasks().forEach(task -> taskManager.getTaskById(task.getId()));
         }
         assertArrayEquals(taskManager.getAllTasks().toArray(),
                 taskManager.historyManager.getHistory().toArray());
     }
 
     @Test
-    public void historyCanContainsMoreThan10LastViews() throws CloneNotSupportedException {
-        Task task1 = new Task("Task1 name", "Task1 description");
+    public void historyCanContainsMoreThan10LastViews() {
+        Task task1 = ObjectBuilder.of(Task::new)
+                .with(Task::setName, "Some name")
+                .with(Task::setDescription, "Some description")
+                .with(Task::setDuration, 30L)
+                .build();
         taskManager.addTask(task1);
-        Task task2 = new Task("Task2 name", "Task2 description");
+        Task task2 = ObjectBuilder.of(Task::new)
+                .with(Task::setName, "Some name")
+                .with(Task::setDescription, "Some description")
+                .with(Task::setDuration, 30L)
+                .build();
         taskManager.addTask(task2);
-        Task task3 = new Task("Task3 name", "Task3 description");
+        Task task3 = ObjectBuilder.of(Task::new)
+                .with(Task::setName, "Some name")
+                .with(Task::setDescription, "Some description")
+                .with(Task::setDuration, 30L)
+                .build();
         taskManager.addTask(task3);
-        Epic epic1 = new Epic("Epic1 name", "Epic1 description");
+        Epic epic1 = ObjectBuilder.of(Epic::new)
+                .with(Epic::setName, "Some name")
+                .with(Epic::setDescription, "Some description")
+                .build();
         taskManager.addTask(epic1);
         Integer epic1Id = InMemoryTaskManager.getLastTaskId();
-        Subtask subtask1 = new Subtask("Subtask1 name", "Subtask1 description",
-                epic1Id);
-        Subtask subtask2 = new Subtask("Subtask2 name", "Subtask2 description",
-                epic1Id);
-        Subtask subtask3 = new Subtask("Subtask3 name", "Subtask3 description",
-                epic1Id);
+        Subtask subtask1 = ObjectBuilder.of(Subtask::new)
+                .with(Subtask::setName, "Some name")
+                .with(Subtask::setDescription, "Some description")
+                .with(Subtask::setDuration, 30L)
+                .with(Subtask::setEpicId, epic1Id)
+                .build();
+        Subtask subtask2 = ObjectBuilder.of(Subtask::new)
+                .with(Subtask::setName, "Some name")
+                .with(Subtask::setDescription, "Some description")
+                .with(Subtask::setDuration, 30L)
+                .with(Subtask::setEpicId, epic1Id)
+                .build();
+        Subtask subtask3 = ObjectBuilder.of(Subtask::new)
+                .with(Subtask::setName, "Some name")
+                .with(Subtask::setDescription, "Some description")
+                .with(Subtask::setDuration, 30L)
+                .with(Subtask::setEpicId, epic1Id)
+                .build();
         taskManager.addTask(subtask1);
         taskManager.addTask(subtask2);
         taskManager.addTask(subtask3);
         for (int i = 0; i < 17; i++) {
-            taskManager.addTask(new Task("Generated task " + (i + 1), "Descr"));
+            taskManager.addTask(ObjectBuilder.of(Task::new)
+                    .with(Task::setName, "Some name")
+                    .with(Task::setDescription, "Some description")
+                    .with(Task::setDuration, 30L)
+                    .build());
         }
 
         List<Task> views = new ArrayList<>();
-        for (Task task : taskManager.getAllTasks()) {
-            views.add(taskManager.getTaskById(task.getId()));
-        }
+        taskManager.getAllTasks().forEach(task -> views.add(taskManager.getTaskById(task.getId())));
         System.out.println(taskManager.getAllTasks().size());
         System.out.println(taskManager.getHistory().size());
         assertArrayEquals(taskManager.getHistory().toArray(), views.toArray());
@@ -151,7 +205,11 @@ class InMemoryHistoryManagerTest {
 
     @Test
     public void tasksInTaskManagerAreSnapshots() {
-        Task task = new Task("Task name", "Task description");
+        Task task = ObjectBuilder.of(Task::new)
+                .with(Task::setName, "Some name")
+                .with(Task::setDescription, "Some description")
+                .with(Task::setDuration, 30L)
+                .build();
         taskManager.addTask(task);
         taskManager.getTaskById(InMemoryTaskManager.getLastTaskId());
         task.setId(-1);
@@ -164,7 +222,10 @@ class InMemoryHistoryManagerTest {
         assertNotEquals(taskFromHistory.getDescription(), task.getDescription());
         assertNotEquals(taskFromHistory.getStatus(), task.getStatus());
 
-        Epic epic = new Epic("Epic name", "Epic description");
+        Epic epic = ObjectBuilder.of(Epic::new)
+                .with(Epic::setName, "Some name")
+                .with(Epic::setDescription, "Some description")
+                .build();
         taskManager.addTask(epic);
         taskManager.getTaskById(InMemoryTaskManager.getLastTaskId());
         epic.setId(-2);
@@ -176,8 +237,12 @@ class InMemoryHistoryManagerTest {
         assertNotEquals(epicFromHistory.getDescription(), epic.getDescription());
         epic.setId(InMemoryTaskManager.getLastTaskId());
 
-        Subtask subtask = new Subtask("Subtask name", "Subtask description",
-                InMemoryTaskManager.getLastTaskId());
+        Subtask subtask = ObjectBuilder.of(Subtask::new)
+                .with(Subtask::setName, "Some name")
+                .with(Subtask::setDescription, "Some description")
+                .with(Subtask::setDuration, 30L)
+                .with(Subtask::setEpicId, InMemoryTaskManager.getLastTaskId())
+                .build();
         taskManager.addTask(subtask);
         taskManager.getTaskById(InMemoryTaskManager.getLastTaskId());
         subtask.setId(-3);

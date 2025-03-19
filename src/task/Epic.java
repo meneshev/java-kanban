@@ -1,13 +1,13 @@
 package task;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 public class Epic extends Task {
 
-    public Epic(String name, String description) {
-        super(name, description);
-    }
+    private LocalDateTime endTime;
 
-    public Epic(String name, String description, Integer id, TaskStatus status) {
-        super(name, description, id, status);
+    public Epic() {
     }
 
     @Override
@@ -15,13 +15,19 @@ public class Epic extends Task {
         System.out.println("WARN: Для эпиков запрещена ручная смена статуса");
     }
 
-    public void setStatus(TaskStatus status, boolean force) {
-        if (force) {
-            super.setStatus(status);
-        }
+    public void setStatusForce(TaskStatus status) {
+        super.setStatus(status);
+
     }
 
+    @Override
+    public Optional<LocalDateTime> getEndTime() {
+        return Optional.ofNullable(endTime);
+    }
 
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
 
     @Override
     public String toString() {
@@ -30,6 +36,18 @@ public class Epic extends Task {
                 ", description='" + super.getDescription() + '\'' +
                 ", id=" + super.getId() +
                 ", status=" + super.getStatus() +
+                ", duration=" + super.getDuration().toMinutes() +
+                ", startTime=" + super.getStartTime().orElse(null) +
+                ", endTime=" + getEndTime().orElse(null) +
                 '}';
+    }
+
+    public String toCsvString() {
+        StringBuilder csvString = new StringBuilder(super.getId().toString()).append(",")
+                .append(this.getClass().getSimpleName().toUpperCase()).append(",")
+                .append(super.getName()).append(",")
+                .append(super.getStatus().name()).append(",")
+                .append(super.getDescription());
+        return csvString.append(",,,").toString();
     }
 }
