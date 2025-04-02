@@ -67,7 +67,7 @@ public class Task implements Cloneable {
     }
 
     public Optional<LocalDateTime> getEndTime() {
-        return getStartTime().isPresent() ?
+        return getStartTime().isPresent() && duration != null ?
                 Optional.of(startTime.plusMinutes(duration.toMinutes())) : Optional.empty();
     }
 
@@ -90,12 +90,13 @@ public class Task implements Cloneable {
 
     @Override
     public String toString() {
+        Long duration = this.duration != null ? this.duration.toMinutes() : null;
         return "Task{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", id=" + id +
                 ", status=" + status +
-                ", duration=" + duration.toMinutes() +
+                ", duration=" + duration +
                 ", startTime=" + startTime +
                 ", endTime=" + getEndTime().orElse(null) +
                 '}';

@@ -1,5 +1,6 @@
 package manager;
 
+import exception.NotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import task.Epic;
@@ -63,7 +64,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.addTask(task1);
         assertTrue(taskManager.getAllTasks().contains(task1));
         taskManager.deleteTaskById(task1.getId());
-        assertNull(taskManager.getTaskById(task1.getId()));
+        assertThrows(NotFoundException.class, () -> taskManager.getTaskById(task1.getId()));
     }
 
     @Test
@@ -105,8 +106,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                 .build();
         taskManager.addTask(subtask1);
         taskManager.deleteTaskById(epic1.getId());
-        assertNull(taskManager.getTaskById(subtask1.getId()));
-        assertNull(taskManager.getTaskById(epic1.getId()));
+        assertThrows(NotFoundException.class, () -> taskManager.getTaskById(subtask1.getId()));
+        assertThrows(NotFoundException.class, () -> taskManager.getTaskById(epic1.getId()));
     }
 
     @Test
@@ -189,7 +190,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.addTask(subtask1);
         assertTrue(taskManager.getAllTasks().contains(subtask1));
         taskManager.deleteTaskById(subtask1.getId());
-        assertNull(taskManager.getTaskById(subtask1.getId()));
+        assertThrows(NotFoundException.class, () -> taskManager.getTaskById(subtask1.getId()));
     }
 
     @Test

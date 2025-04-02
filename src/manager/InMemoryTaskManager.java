@@ -1,5 +1,6 @@
 package manager;
 
+import exception.NotFoundException;
 import task.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -40,16 +41,19 @@ public class InMemoryTaskManager implements TaskManager {
     public Task getTaskById(Integer id) {
         if (taskMap.containsKey(id)) {
             addToViewed(taskMap.get(id));
+            return taskMap.get(id);
+        } else {
+            throw new NotFoundException("Объект не найден");
         }
-        return taskMap.get(id);
+
     }
 
     //метод для внутреннего использования, в нем не обновляется информация о просмотре задач
-    protected Task getTaskById(Integer id, Boolean innerUse) {
+    public Task getTaskById(Integer id, Boolean innerUse) {
         if (innerUse) {
             return taskMap.get(id);
         } else {
-            return null;
+            throw new NotFoundException("Объект не найден");
         }
     }
 
@@ -74,6 +78,24 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
+    public boolean hasDateIntersect(Task task) {
+        if (task.getStartTime().isPresent()) {
+            if (task.getId() != null) {
+                Task sameTaskFromPrioritized = prioritizedTasks.get(task.getStartTime().get());
+                if (sameTaskFromPrioritized != null
+                        && sameTaskFromPrioritized.getStartTime().get().equals(task.getStartTime().get())
+                        && sameTaskFromPrioritized.getDuration().equals(task.getDuration())) {
+                    return false;
+                }
+            }
+            return prioritizedTasks.values().stream()
+                    .anyMatch(prioritizedTask -> (task.getStartTime().get().isBefore(prioritizedTask.getStartTime().get()) &&
+                            task.getEndTime().get().isAfter(prioritizedTask.getStartTime().get())) ||
+                            (task.getStartTime().get().isBefore(prioritizedTask.getEndTime().get())));
+        }
+        return false;
+    }
+
     protected void addToPrioritized(Task task) {
         if (task.getStartTime().isEmpty() || task.getClass() == Epic.class) {
             return;
@@ -84,12 +106,9 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
-        boolean hasDateIntersect =  prioritizedTasks.values().stream()
-                .anyMatch(prioritizedTask -> (task.getStartTime().get().isBefore(prioritizedTask.getStartTime().get()) &&
-                        task.getEndTime().get().isAfter(prioritizedTask.getStartTime().get())) ||
-                        (task.getStartTime().get().isBefore(prioritizedTask.getEndTime().get())));
+        boolean isDateIntersect = hasDateIntersect(task);
 
-        if (!hasDateIntersect) {
+        if (!isDateIntersect) {
             prioritizedTasks.put(task.getStartTime().get(), task);
         }
     }
