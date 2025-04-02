@@ -1,5 +1,6 @@
 package handler;
 
+import adapter.TaskListTypeToken;
 import com.google.gson.*;
 import controller.HttpTaskServer;
 import manager.InMemoryTaskManager;

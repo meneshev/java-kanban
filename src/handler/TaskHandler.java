@@ -64,7 +64,7 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
     private void handlePostTasks(HttpExchange exchange) throws IOException {
         String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
         JsonElement jsonElement = JsonParser.parseString(body);
-        if(!jsonElement.isJsonObject()) {
+        if (!jsonElement.isJsonObject()) {
             sendText(exchange, "Не удается обработать запрос. Проверьте тело запроса", 400);
             return;
         }
