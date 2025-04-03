@@ -19,7 +19,6 @@ public class HttpTaskServer {
         server.createContext("/epics", new EpicsHandler(manager));
         server.createContext("/history", new HistoryHandler(manager));
         server.createContext("/prioritized", new PrioritizedHandler(manager));
-        //server.start();
     }
 
     public void stopServer() {
