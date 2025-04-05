@@ -143,11 +143,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     writer.write(csvHeader);
                     writer.newLine();
                 }
-
-//                for (Task task : taskMap.values()) {
-//                    writer.append(task.toCsvString());
-//                    writer.newLine();
-//                }
                 taskMap.values().forEach(task -> {
                     try {
                         writer.append(task.toCsvString());

@@ -31,12 +31,13 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
+        Long duration = super.getDuration() != null ? super.getDuration().toMinutes() : null;
         return "Epic{" +
                 "name='" + super.getName() + '\'' +
                 ", description='" + super.getDescription() + '\'' +
                 ", id=" + super.getId() +
                 ", status=" + super.getStatus() +
-                ", duration=" + super.getDuration().toMinutes() +
+                ", duration=" + duration +
                 ", startTime=" + super.getStartTime().orElse(null) +
                 ", endTime=" + getEndTime().orElse(null) +
                 '}';
